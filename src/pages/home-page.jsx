@@ -1,16 +1,23 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { HeaderHomePage } from '../components/header.jsx'
 import { StoryComponent } from '../components/storyContent/storyComponent.jsx'
-import { ContentContext } from '../context/contentProvider.js'
 import Navigation from '../components/navigation.jsx'
-
+import Cookies from "js-cookie";
+import { useNavigate } from 'react-router-dom'
 import { Loading } from '../fragments/fragmentComponent.jsx'
 
-const ContentList = React.lazy(() => import('../components/contentList.jsx'))
+const ContentList = React.lazy(() => import('../components/content/contentList.jsx'))
 // Home Page
 const HomePage = () => {
-  const { state } = ContentContext()
+  const navigate = useNavigate()
 
+  useEffect(() => {
+    const getCookies = Cookies.get('guest')
+    if(!getCookies){
+      navigate('/undangan-untuk/publik')
+    }
+  }, [navigate]);
+  
   return (
     <>
       <HeaderHomePage />
@@ -18,8 +25,8 @@ const HomePage = () => {
       <Suspense fallback={Loading}>
         <StoryComponent
           addStory={true}
-          gradient={false}
-          style={{ flex: '0 0 82px', width: '70px' }}
+          gradient={true}
+          style={{ flex: '0 0 85px', width: '80px' }}
         />
       </Suspense>
       </div>

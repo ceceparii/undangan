@@ -4,12 +4,10 @@ import { HeaderProfile } from '../components/header.jsx'
 import { TombolMengikuti } from '../fragments/buttonFragment.jsx'
 import { StoryComponent } from '../components/storyContent/storyComponent.jsx'
 import ProfileContent from '../components/profileContent.jsx'
-import { ContentContext } from '../context/contentProvider.js'
 import Navigation from '../components/navigation.jsx'
 
 const ProfilePage = () => {
-  const { state } = ContentContext()
-  
+
   return (
     <div className='pb-28 w-full'>
       <HeaderProfile />
@@ -64,6 +62,7 @@ const ProfilePage = () => {
       </div>
       <div className='flex overflow-scroll gap-7 p-3.5 hide-scrollbar'>
         <StoryComponent
+          gradient={false}
           name={<Heart size='16' className='text-red-600 m-auto my-2' variant='Bold'/>}
           style={{ flex: '0 0 70px', width: '70px'}}
         />

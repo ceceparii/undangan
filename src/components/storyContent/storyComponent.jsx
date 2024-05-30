@@ -2,13 +2,23 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ContentContext } from '../../context/contentProvider.js'
 import { AddCircle } from 'iconsax-react'
+import Cookies from 'js-cookie'
 
-const { REACT_APP_HOST } = process.env
 // Sorotan Component
 export const StoryComponent = (props) => {
   const navigate = useNavigate()
-  const [ isOpen, setIsOpen ] = useState(props.gradient)
   const { state } = ContentContext()
+  const [onLoad, setOnload] = useState(true);
+  
+  const cookies = Cookies.get('story')
+  const storyCookies = cookies ? JSON.parse(cookies) : []
+  
+  const clickHandler = (category) => {
+    storyCookies.push(category)
+    
+    Cookies.set('story', JSON.stringify(storyCookies))
+    navigate(`/story/${category}`)
+  }
 
   return (
     <>
@@ -16,7 +26,7 @@ export const StoryComponent = (props) => {
         <div 
           className='text-center relative'
           style={props.style}
-        >
+        > 
           <img 
             src='/assets/icons/blank.png'
             alt=''
@@ -34,13 +44,21 @@ export const StoryComponent = (props) => {
           <div 
             className='text-sm text-center w-max flex flex-col items-center'
             style={props.style}
-            onClick={() => navigate(`/story/${content.category}`)}
+            onClick={() => clickHandler(content.category)}
             key={index}
           >
-            <div className={isOpen ? 'border-gradient' : 'border-1-black rounded-50'}>
+            <div className={!storyCookies.includes(content.category) && props.gradient ? 'border-gradient' : 'border-1-black rounded-50'}>
+              { onLoad && 
+                <div 
+                  className='rounded-50 aspect-square bg-gray-100 p-1 m-1'
+                  style={{ width: '74px'}}
+                  />
+              }
               <img 
-                src={`${REACT_APP_HOST}/assets/${content.path}`}
+                onLoad={() => setOnload(false)}
+                src={content.image_url}
                 alt=''
+                style={{ display: onLoad ? 'none' : 'block' }}
                 className='rounded-50 aspect-square  object-cover border-gradient'
               />
             </div>

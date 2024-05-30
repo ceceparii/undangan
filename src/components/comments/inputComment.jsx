@@ -1,37 +1,38 @@
-import axios from 'axios'
 import React, { useState } from 'react'
 import { ArrowUp } from 'iconsax-react'
 import { ProfilePictureFragment } from '../../fragments/fragmentComponent.jsx'
-import { ContentContext } from '../../context/contentProvider.js'
+import Cookies from 'js-cookie'
+import { sendComment } from '../../libs/fetcher.js'
 
-const { REACT_APP_HOST } = process.env
-
-const InputComment = ({ content, className }) => {
+const InputComment = ({ contentId, className }) => {
   const [ value, setValue ] = useState('')
   const [ isFocus, setIsFocus ] = useState(false)
-  const contentContext = ContentContext()
-  
-  // Get guest _id in local storage
-  const guest = JSON.parse(localStorage.getItem('guest'))
-  
+
+  // Get guest id in local storage
+  const guestCookie = JSON.parse(Cookies.get('guest'))
   // post comment
   const postComment = async (e) => {
     e.preventDefault()
-    if(guest.guestname !== 'publik') {
-      const { data } = await axios.post(REACT_APP_HOST + '/post-comment',
-        {
-          value,
-          guest,
-          content: content || contentContext.state.content,
-        },
-        { withCredentials: true }
-      )
-      if(data.success) setValue('')
+    
+    const formData = {
+      guestId: guestCookie.id,
+      guestname:  guestCookie.guestname,
+      text: value,
+      time: Date.now()
+    }
+    if(guestCookie.guestname !== 'publik') {
+      try {
+        sendComment(contentId, formData)
+        .then((data) => {
+          setValue('')
+        })
+      } catch(err) {
+        console.error(err)
+      }
     }
   }
-  // navigation display handler
+  // send button display handler
   const focusHandler = () => {
-    contentContext.dispatch({ type: 'focus_handler' })
     setIsFocus(isFocus ? false : true)
   }
   
@@ -45,7 +46,7 @@ const InputComment = ({ content, className }) => {
         type='text'
         value={value}
         className='w-full outline-0 p-2'
-        placeholder={guest.guestname === 'publik' ? 'Publik tidak di ijinkan' : 'Tambahkan komentar ...'}
+        placeholder={guestCookie.guestname === 'publik' ? 'Publik tidak di ijinkan' : 'Tambahkan komentar ...'}
         onChange={e => setValue(e.target.value)}
         onFocus={focusHandler}
         onBlur={focusHandler}

@@ -1,25 +1,30 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { DirectboxNotif } from 'iconsax-react'
-import axios from 'axios'
-
-const { REACT_APP_HOST } = process.env
+import Cookies from 'js-cookie'
+import { findGuest } from '../libs/fetcher.js'
 
 const LoginPage = () => {
   const { tamu } = useParams()
+  const [isClick, setIsClick] = useState(false);
   const namaLengkapTamu = decodeURIComponent(tamu)
   const navigate = useNavigate()
   
   // Click login handler
   const clickHandler = async () => {
-    const { data } = await axios.get(REACT_APP_HOST + '/login/' + tamu, {}, 
-      { ithCredentials: true }
-    )
-    
-    if(data.success) {
-      localStorage.setItem('guest', JSON.stringify(data.result))
-      navigate('/')
-    }
+    setIsClick(true)
+    // find guest
+    await findGuest(tamu)
+    .then((data) => {
+      if(data) {
+        Cookies.set('guest', JSON.stringify(data))
+        const guestCookie = JSON.parse(Cookies.get('guest'))
+        if(guestCookie) {
+          navigate('/')
+        }
+      }
+    })
+    setIsClick(false)
   }
   
   return (
@@ -55,7 +60,9 @@ const LoginPage = () => {
           <div>Kami mengundang anda untuk menghadiri acara pernikahan kami.</div>
           <button 
             className='flex gap-3.5 bg-blue-400 text-white px-3.5 py-2.5 rounded-xl m-auto my-7 items-center'
+            style={{ opacity: isClick ? '40%' : '100%'}}
             onClick={clickHandler}
+            disabled={isClick}
           >
             <DirectboxNotif size='18'/>
             Buka undangan

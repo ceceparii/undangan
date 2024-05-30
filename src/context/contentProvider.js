@@ -4,6 +4,7 @@ const initialState = {
   feedContent: [],
   storyContent: [],
   chatMessage: [],
+  musics: [],
   storyRemovedDuplicat: [],
   contentId: '',
   navigationBottom: false,
@@ -48,24 +49,18 @@ const reducer = (state, action) => {
       }
     }
     
-    case 'comment_handler': {
-      // Comment display handler
-      const body = document.querySelector('body')
-      state.openComment = state.openComment ? false : true
-      body.style.overflow = state.openComment ? 'hidden' : 'auto'
-      // Fill contentId value with _id content
-      state.contentId = action.payload
-      
-      return {
-        ...state
-      }
-    }
-    
     case 'navigation_handler': {
       // Navigation display handler with comment input as handler
       state.navigationBottom = action.payload
       return {
         ...state,
+      }
+    }
+    
+    case 'MUSICS': {
+      state.musics = action.payload
+      return {
+        ...state
       }
     }
     

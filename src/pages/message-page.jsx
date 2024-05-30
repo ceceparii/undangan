@@ -1,19 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
-import axios from 'axios'
 import { Microphone2, AddCircle, Camera } from 'iconsax-react'
 import { HeaderConversation } from '../components/header.jsx'
 import { Loading } from '../fragments/fragmentComponent.jsx'
 import BubleChat from '../components/messages/bubleChat.jsx'
+import Cookies from 'js-cookie'
+import { getData, sendMessages } from '../libs/fetcher.js'
 
-//const BubleChat = lazy(() => import('../components/messages/bubleChat.jsx'))
-
-const { REACT_APP_HOST } = process.env
-const guest = JSON.parse(localStorage.getItem('guest'))
+const cookies = Cookies.get('guest')
+const guestCookie = cookies ? JSON.parse(cookies) : ''
 
 // Conversation Page
 const ConversationPage = () => {
   const [ textValue, setTextValue ] = useState('')
-  const [ isSubmit, setIsSubmit ] = useState('') 
   const [ isFocus, setIsFocus ] = useState(false)
   const [ messages, setMessages ] = useState([])
   const endMessageRef = useRef(null)
@@ -25,28 +23,30 @@ const ConversationPage = () => {
   // Submit message
   const submitHandler = async (e) => {
     e.preventDefault()
-    if(guest.guestname !== 'publik') {
-      const { data } = await axios.post(`${REACT_APP_HOST}/send-message`, { textValue, guest }, { 
-          withCredentials: true
-        }
-      )
-      if(data.success) {
+    const formData = {
+      guestId: guestCookie.id,
+      guestname: guestCookie.guestname,
+      message: textValue,
+      time: Date.now()
+    }
+    
+    if(guestCookie.guestname !== 'publik') {
+      sendMessages(formData)
+      .then((data) => {
         setTextValue('')
-        setIsSubmit(data)
-      }
+      })
     }
   }
   
   //get chat message
   useEffect(() => {
-    const fetchMessage = async () => {
-      const { data } = await axios.get(`${REACT_APP_HOST}/chat-message`, { }, {
-        withCredentials: true
-      })
-      if(data.success) setMessages(data.result)
-    }
-    fetchMessage()
-  }, [isSubmit])
+    const interval = setInterval(() => {
+      getData('messages')
+      .then((data) => setMessages(data))
+    }, 1000)
+    
+    return () => clearInterval(interval)
+  }, [])
   
   //scroll handler
   useEffect(() => {
@@ -72,7 +72,7 @@ const ConversationPage = () => {
           {messages.length > 0 ?
             messages.map((message, index) => (
               <BubleChat key={index}
-                rtl={message.guestname === guest.guestname}
+                rtl={message.guestname === guestCookie.guestname}
                 messages={messages}
                 index={index}
                 {...message}
@@ -98,7 +98,7 @@ const ConversationPage = () => {
             type="text"
             value={textValue}
             className='w-full bg-transparent outline-0'
-            placeholder={guest.guestname === 'publik' ? 'Publik tidak di ijinkan' : 'Tulis pesan ...'}
+            placeholder={guestCookie.guestname === 'publik' ? 'Publik tidak di ijinkan' : 'Tulis pesan ...'}
             onChange={changeHandler}
           />
           { !isFocus &&

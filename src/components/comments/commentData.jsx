@@ -1,39 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { ContentContext } from '../../context/contentProvider.js'
-import axios from 'axios'
 import { withCommentTime } from '../../utils/withCommentTime.js'
-
-const { REACT_APP_HOST } = process.env
-
-const ComentData = () => {
-  const { state } = ContentContext()
-  const [ comments, setComments ] = useState([])
-
-  // get comment data
-  useEffect(() => {
-    const fetchComment = async () => {
-      const { data } = await axios.get(REACT_APP_HOST + '/get-comment/' + state.contentId,
-      { },
-      {
-        withCredentials: true
-      })
-      if(data.success) {
-        setComments(data.result.comments)
-      }
-    }
-    
-    fetchComment()
-  },[state.contentId])
-  
-  return (
-    <div className='overflow-scroll h-full pb-32'>
-      {comments.length > 0 &&
-        comments.map((comment, index) => (
-          <WithTimeCommentGuest key={index} {...comment} />
-        ))}
-    </div>
-  )
-}
+import { getComments } from '../../libs/fetcher.js'
 
 const GuestComment = (props) => {
 
@@ -55,5 +22,27 @@ const GuestComment = (props) => {
 
 const WithTimeCommentGuest = withCommentTime(GuestComment)
 
+const ComentData = ({ contentId }) => {
+  const [ comments, setComments ] = useState([])
+
+  // get comment data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getComments(contentId)
+      .then((data) => setComments(data))
+    }, 2000)
+    
+    return () => clearInterval(interval)
+  },[contentId])
+  
+  return (
+    <div className='overflow-scroll h-full pb-32'>
+      {comments.length > 0 &&
+        comments.map((comment, index) => (
+          <WithTimeCommentGuest key={index} {...comment} />
+        ))}
+    </div>
+  )
+}
 
 export default ComentData

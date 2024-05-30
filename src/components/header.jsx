@@ -1,5 +1,6 @@
 import React from 'react'
 import { Navigate } from '../utils/navigate.js'
+import Cookies from 'js-cookie'
 import { 
   ArrowLeft,
   Send2,
@@ -12,17 +13,18 @@ import {
   InfoCircle
 } from 'iconsax-react'
 
-const { username } = JSON.parse(localStorage.getItem('guest'))
+const cookie = Cookies.get('guest')
+const guestCookie = cookie ? JSON.parse(cookie) : ''
 
 export const HeaderProfile = () => {
-  
+
   return (
     <header className='p-3.5 flex justify-between'>
       <div className='flex gap-5 items-center text-xl'>
         <Navigate path={-1}>
           <ArrowLeft size='28' />
         </Navigate>
-        { username }
+        { guestCookie.username || '' }
       </div>
       <div className='flex gap-5'>
         <Send2 size='26' />
@@ -50,6 +52,7 @@ export const HeaderHomePage = () => {
 }
 
 export const HeaderConversation = () => {
+
   return (
     <header className='p-3.5 flex items-center justify-between gap-3.5 bg-white'>
         <div className='flex items-center gap-3.5'>
@@ -59,8 +62,8 @@ export const HeaderConversation = () => {
           <div className='flex gap-3.5 items-center'>
             <img src="/assets/icons/blank.png" alt="" className='w-10 rounded-50'/>
             <div>
-              <div>{ username === 'cecepari_' ? 'Cecep Ari' : 'Rosmayanti'}</div>
-              <div className='text-sm opacity-50'>{ username }</div>
+              <div>{ guestCookie.username === 'cecepari_' ? 'Cecep Ari' : 'Rosmayanti'}</div>
+              <div className='text-sm opacity-50'>{ guestCookie.username || '' }</div>
             </div>
           </div>
         </div>

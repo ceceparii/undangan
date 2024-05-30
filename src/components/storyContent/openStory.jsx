@@ -5,15 +5,13 @@ import { ContentContext } from '../../context/contentProvider.js'
 import { Heart, Send2 } from 'iconsax-react'
 import { HeaderSorotan } from '../../components/header.jsx'
 
-const { REACT_APP_HOST } = process.env
-
 const OpenStory = () => {
   const containerRef = useRef(null)
   const { category } = useParams()
   const { state } = ContentContext()
   
   const filteredByCategory = state.storyContent.filter(content => content.category === category)
-  
+
   return (
     <div className="bg-black" style={{ height: window.innerHeight}}>
       <div className='relative pt-10'>
@@ -39,7 +37,7 @@ const OpenStory = () => {
                 className='w-full h-full'
               >
                 <img
-                  src={`${REACT_APP_HOST}/assets/${content.path}`}
+                  src={content.image_url}
                   alt=''
                   className='object-cover h-full w-full object-center'
                 />

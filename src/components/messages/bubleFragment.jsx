@@ -33,7 +33,7 @@ const BubleFragment = (props) => {
               ${ props.rtl ? bottomRight : bottomLeft }
               rounded-3xl bg-gray-200 py-2 px-3.5 w-max max-w-full text-wrap text-sm text-gray-700 mb-1
             `}>
-              {props.text}
+              {props.message}
             </div>
           </div>
         </div>

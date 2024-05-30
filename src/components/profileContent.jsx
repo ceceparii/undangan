@@ -4,12 +4,10 @@ import { Grid1, Map, VideoPlay } from 'iconsax-react'
 import { GoogleMap2 } from './embedComponent.jsx'
 import { ContentContext } from '../context/contentProvider.js'
 
-const { REACT_APP_HOST } = process.env
-
 const ProfileContent = () => {
   const [ isActive, setIsActive ] = useState(1)
+  const { state } = ContentContext()
   const navigate = useNavigate()
-  const contentContext = ContentContext()
   
   return (
     <>
@@ -38,11 +36,11 @@ const ProfileContent = () => {
       </div>
       <div className='grid grid-cols-3 gap-1'>
         {
-          isActive === 1 && contentContext.state.feedContent.map((content, index) => 
+          isActive === 1 && state.feedContent.map((content, index) => 
             <img
               key={index}
               onClick={() => navigate(`/content`, { state: content})}
-              src={`${REACT_APP_HOST}/assets${content.path}`}
+              src={content.image_url}
               alt=""
               className='aspect-square object-cover'
             />

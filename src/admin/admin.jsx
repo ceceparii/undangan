@@ -1,80 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import AddContent from './addContent.jsx'
-import { useParams, useNavigate } from 'react-router-dom'
-const { REACT_APP_HOST } = process.env
-
+import React, { useEffect } from 'react'
+import { useNavigate, Outlet, useParams } from 'react-router-dom'
 // Admin Page
 const AdminPage = () => {
-  const [ guest, setGuest ] = useState('')
-  const [ admin, setAdmin ] = useState({})
-  const { username, password } = useParams()
   const navigate = useNavigate()
+  const { user } = useParams()
   
   useEffect(() => {
-    const authorization = async () => {
-      const { data } = await axios.post(`${REACT_APP_HOST}/auth`, { username, password }, {
-        withCredentials: true
-      })
-      if(!data.success){
-        navigate('/page-not-found-404')
-      }
-      
-      if(data.success){
-        setAdmin(data.result)
-        localStorage.setItem('guest', JSON.stringify(data.result))
-      } 
-      
-    }
-    
-    authorization()
-  }, [navigate, password, username])
+    if(!user) navigate('/404/notfound')
+  }, [user, navigate])
   
-  const changeHandler = (e) => {
-    const { value } = e.target
-    setGuest(value)
-  }
-
-  const submitHandler = async (e) => {
-    e.preventDefault()
-    
-    const { data } = await axios.post(REACT_APP_HOST + '/add-guest', { guest, username: admin.username },
-      { withCredentials: true }
-    )
-    console.log(data)
-    if(data.success) setGuest('')
-  }
-  
-  if(admin.username) {
-    return (
-      <div className='w-full'>
-        <AddContent 
-          path={`${REACT_APP_HOST}/feed/feed_content`}
-          content='feed'
-          header='ADD FEED CONTENT'
-        />
-        <AddContent
-          path={`${REACT_APP_HOST}/story/story_content`}
-          content='story'
-          header='ADD STORY CONTENT'
-        />
-        <div className='m-3.5 p-3.5 rounded-2xl shadow'>
-          <div className='text-center font-semibold my-3.5'>TAMBAH TAMU UNDANGAN</div>
-          <div className='flex gap-3.5'>
-            <input 
-              type="text" 
-              value={guest}
-              className='p-2 border rounded-xl w-full'
-              onChange={changeHandler}
-            />
-            <button onClick={submitHandler} className='p-2.5 px-4 bg-blue-400 rounded-xl text-white'>
-              TAMBAH
-            </button>
-          </div>
+  return (
+    <div className='w-full'>
+      <div className='w-full p-3.5 text-3xl font-extrabold bg-gray-700 text-white flex justify-between items-center'>
+        <div
+          className='text-3xl font-semibold'
+          onClick={() => navigate('/')}
+        >
+          Admin
+        </div>
+        <div className='flex gap-3.5'>
+          <div onClick={() => navigate(`/admin/${user}`)}>tamu undangan</div>
+          <div onClick={() => navigate(`/admin/${user}/content`)}>content</div>
         </div>
       </div>
-    )
-  }
+      <Outlet />
+    </div>
+  )
 }
 
 export default AdminPage
